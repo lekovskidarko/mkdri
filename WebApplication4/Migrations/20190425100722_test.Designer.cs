@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace WebApplication4.Migrations
+namespace MKDRI.Migrations
 {
     [DbContext(typeof(MKDRIContext))]
     [Migration("20190425100722_test")]

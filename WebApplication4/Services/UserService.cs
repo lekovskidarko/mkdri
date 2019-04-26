@@ -6,7 +6,7 @@ using MKDRI.Dtos;
 using MKDRI.Models;
 using MKDRI.Repositories.UnitOfWork;
 
-namespace WebApplication4.Services
+namespace MKDRI.Services
 {
     public class UserService : IUserService
     {
@@ -34,7 +34,6 @@ namespace WebApplication4.Services
             Laboratory lab = (from dbLabs in unitOfWork.Laboratories.All()
                               where dbLabs.Id == id
                               select dbLabs).SingleOrDefault();
-            lab = unitOfWork.Laboratories.Where()
             return users;
         }
     }

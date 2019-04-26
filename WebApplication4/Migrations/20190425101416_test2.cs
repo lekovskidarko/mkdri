@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace WebApplication4.Migrations
+namespace MKDRI.Migrations
 {
     public partial class test2 : Migration
     {

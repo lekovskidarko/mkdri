@@ -3,7 +3,7 @@ using MKDRI.Repositories.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Threading.Tasks;
-using WebApplication4.Repositories.Context;
+using MKDRI.Repositories.Context;
 
 namespace MKDRI.Repositories.Context
 {

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace WebApplication4.Migrations
+namespace MKDRI.Migrations
 {
     [DbContext(typeof(MKDRIContext))]
     partial class MKDRIContextModelSnapshot : ModelSnapshot
