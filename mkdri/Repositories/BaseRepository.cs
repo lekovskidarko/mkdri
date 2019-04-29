@@ -33,10 +33,6 @@ namespace MKDRI.Models.UnitOfWork
             return set.FindAsync(id);
         }
 
-        public void Include(System.Linq.Expressions.Expression<Func<T, TProperty>> path)
-        {
-            set.Include();
-        }
 
         public void Insert(T newEntry)
         {

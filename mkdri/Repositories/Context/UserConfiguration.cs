@@ -18,6 +18,7 @@ namespace MKDRI.Repositories.Context
             builder.ToTable("User", Schema);
 
             builder.HasKey(x => x.Id);
+            builder.HasAlternateKey(x => x.Email);
             builder.Property(x => x.Id).HasColumnName(@"Id").HasColumnType("integer").IsRequired().ValueGeneratedOnAdd();
             builder.Property(x => x.FirstName).HasColumnName(@"FirstName").HasColumnType("character varying").IsRequired();
             builder.Property(x => x.LastName).HasColumnName(@"LastName").HasColumnType("character varying").IsRequired();

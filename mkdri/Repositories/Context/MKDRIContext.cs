@@ -3,16 +3,20 @@ using MKDRI.Repositories.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Threading.Tasks;
-using MKDRI.Repositories.Context;
-
+using Microsoft.Extensions.Configuration;
 namespace MKDRI.Repositories.Context
 {
     public class MKDRIContext : DbContext, IMKDRIContext
     {
-        public MKDRIContext (DbContextOptions<MKDRIContext > options) : base(options)
-        { }
+        public IConfiguration Configuration { get; }
+
+        public MKDRIContext (DbContextOptions<MKDRIContext > options, IConfiguration configuration) : base(options)
+        {
+            Configuration = configuration;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseNpgsql("Host=localhost;Database=Asus;Username=Asus;Password=admin");
+            => optionsBuilder.UseLazyLoadingProxies().UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 
         public override EntityEntry<TEntity> Entry<TEntity>(TEntity entity)
         {
@@ -54,6 +58,7 @@ namespace MKDRI.Repositories.Context
             modelBuilder.ApplyConfiguration(new ContactInformationConfiguration(schema));
             modelBuilder.ApplyConfiguration(new ResearchServiceConfiguration(schema));
             modelBuilder.ApplyConfiguration(new LaboratoryConfiguration(schema));
+            modelBuilder.ApplyConfiguration(new LaboratoryTeamConfiguration(schema));
             modelBuilder.ApplyConfiguration(new EquipmentConfiguration(schema));
         }
     }

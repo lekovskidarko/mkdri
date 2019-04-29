@@ -27,6 +27,7 @@ namespace MKDRI
             services.AddScoped<UnitOfWork>();
             services.AddScoped<IMKDRIContext, MKDRIContext>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ILaboratoryService, LaboratoryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

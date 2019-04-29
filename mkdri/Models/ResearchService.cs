@@ -11,7 +11,7 @@ namespace MKDRI.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public Laboratory Laboratory { get; set; }
-        public List<User> Persons { get; set; }
+        public virtual Laboratory Laboratory { get; set; }
+        public virtual List<User> Persons { get; set; }
     }
 }

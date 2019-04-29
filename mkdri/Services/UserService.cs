@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using MKDRI.Dtos;
 using MKDRI.Models;
 using MKDRI.Repositories.UnitOfWork;
@@ -19,7 +20,7 @@ namespace MKDRI.Services
 
         public IEnumerable<UserDto> GetAllUsers()
         {
-            List<UserDto> users = (from dbUsers in unitOfWork.Users.All()
+            List<UserDto> users = (from dbUsers in unitOfWork.Users
                                    where dbUsers.DeletedOn == null
                                     select new UserDto
                                     {
@@ -30,10 +31,6 @@ namespace MKDRI.Services
                                         DeletedOn = dbUsers.DeletedOn
                                     }).ToList();
 
-            int id = 5;
-            Laboratory lab = (from dbLabs in unitOfWork.Laboratories.All()
-                              where dbLabs.Id == id
-                              select dbLabs).SingleOrDefault();
             return users;
         }
     }

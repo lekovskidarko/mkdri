@@ -15,6 +15,6 @@ namespace MKDRI.Models
         public string Datasheet { get; set; }
         public string Description { get; set; }
         public string ImageLink { get; set; }
-        public Laboratory Laboratory { get; set; }
+        public virtual Laboratory Laboratory { get; set; }
     }
 }

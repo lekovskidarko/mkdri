@@ -1,11 +1,12 @@
-﻿using System;
+﻿using GeoAPI.Geometries;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MKDRI.Models
+namespace MKDRI.Dtos
 {
-    public class Laboratory
+    public class LaboratoryDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -13,9 +14,9 @@ namespace MKDRI.Models
         public int Visits { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        public User Coordinator { get; set; }
-        public List<User> Team { get; set; }
-        public List<Equipment> Equipment { get; set; }
-        public List<ResearchService> ResearchServices { get; set; }
+        public UserDto Coordinator { get; set; }
+        public List<UserDto> Team { get; set; }
+        //public List<EquipmentDto> Equipment { get; set; }
+        //public List<ResearchServiceDto> ResearchServices { get; set; }
     }
 }
