@@ -57,9 +57,11 @@ namespace MKDRI.Repositories.Context
             modelBuilder.ApplyConfiguration(new UserConfiguration(schema));
             modelBuilder.ApplyConfiguration(new ContactInformationConfiguration(schema));
             modelBuilder.ApplyConfiguration(new ResearchServiceConfiguration(schema));
+            modelBuilder.ApplyConfiguration(new ResearchServicePersonConfiguration(schema));
             modelBuilder.ApplyConfiguration(new LaboratoryConfiguration(schema));
             modelBuilder.ApplyConfiguration(new LaboratoryTeamConfiguration(schema));
             modelBuilder.ApplyConfiguration(new EquipmentConfiguration(schema));
+            modelBuilder.ApplyConfiguration(new OrganisationConfiguration(schema));
         }
     }
 }

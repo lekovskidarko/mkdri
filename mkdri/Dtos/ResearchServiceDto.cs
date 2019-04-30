@@ -1,17 +1,17 @@
-﻿using System;
+﻿using MKDRI.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MKDRI.Models
+namespace MKDRI.Dtos
 {
-    public class ResearchService
+    public class ResearchServiceDto
     {
         public ResearchServiceType Type { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public virtual Laboratory Laboratory { get; set; }
-        public virtual List<ResearchServicePerson> Persons { get; set; }
+        public List<UserDto> Persons { get; set; }
     }
 }

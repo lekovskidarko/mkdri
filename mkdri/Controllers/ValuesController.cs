@@ -18,7 +18,7 @@ namespace MKDRI.Controllers
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public ActionResult<string> Get(int id)
         {
             return "value";

@@ -16,7 +16,8 @@ namespace MKDRI.Models
     }
     public enum ResearchServiceType
     {
-        ResearchService
+        ResearchService,
+        TechnologicalService
     }
     public enum UserRole
     {
@@ -24,5 +25,9 @@ namespace MKDRI.Models
         Company, 
         Moderator,
         Administrator
+    }
+    public enum Cities
+    {
+
     }
 }

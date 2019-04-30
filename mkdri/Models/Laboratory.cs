@@ -14,10 +14,12 @@ namespace MKDRI.Models
         public int Visits { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+        public Cities City { get; set; }
         public virtual List<ContactInformation> ContactInformation { get; set; }
         public virtual User Coordinator { get; set; }
         public virtual List<LaboratoryTeam> Team { get; set; }
         public virtual List<Equipment> Equipment { get; set; }
         public virtual List<ResearchService> ResearchServices { get; set; }
+        public virtual Organisation Organisation { get; set; }
     }
 }

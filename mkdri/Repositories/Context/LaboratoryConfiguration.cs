@@ -21,6 +21,7 @@ namespace MKDRI.Repositories.Context
             builder.Property(x => x.Id).HasColumnName(@"Id").HasColumnType("integer").IsRequired().ValueGeneratedOnAdd();
             builder.Property(x => x.Latitude).HasColumnName(@"Latitude").HasColumnType("real").IsRequired();
             builder.Property(x => x.Longitude).HasColumnName(@"Longitude").HasColumnType("real").IsRequired(); builder.Property(x => x.Name).HasColumnName(@"Name").HasColumnType("character varying").IsRequired().HasMaxLength(200);
+            builder.Property(x => x.City).HasColumnType("integer");
             builder.Property(x => x.Description).HasColumnName(@"Description").HasColumnType("text");
             builder.Property(x => x.Visits).HasColumnType("integer").HasDefaultValue(0);
 
