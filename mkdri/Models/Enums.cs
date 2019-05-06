@@ -10,7 +10,7 @@ namespace MKDRI.Models
         Phone,
         Fax,
         Zip,
-        Adress,
+        Address,
         Email,
         Website
     }
@@ -28,6 +28,9 @@ namespace MKDRI.Models
     }
     public enum Cities
     {
-
+        Skopje_Centar = 0,
+        Skopje_Aerodrom = 1,
+        Skopje_Karpos = 2,
+        Bitola = 3
     }
 }

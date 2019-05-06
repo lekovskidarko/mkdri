@@ -14,6 +14,13 @@ namespace MKDRI.Repositories.UnitOfWork
         public DbSet<Laboratory> LaboratoriesRepo { get; set; }
         public DbSet<Laboratory> Laboratories { get { if (LaboratoriesRepo == null) { LaboratoriesRepo = Context.Set<Laboratory>(); } return LaboratoriesRepo; } }
 
+        public DbSet<Organisation> OrganisationRepo { get; set; }
+        public DbSet<Organisation> Organisation { get { if (OrganisationRepo == null) { OrganisationRepo = Context.Set<Organisation>(); } return OrganisationRepo; } }
+
+        public DbSet<ContactInformation> ContactInformationRepo { get; set; }
+        public DbSet<ContactInformation> ContactInformation { get { if (ContactInformationRepo == null) { ContactInformationRepo = Context.Set<ContactInformation>(); } return ContactInformationRepo; } }
+
+
         public IMKDRIContext Context { get; }
         public UnitOfWork(IMKDRIContext Context)
         {

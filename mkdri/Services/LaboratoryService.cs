@@ -19,7 +19,9 @@ namespace MKDRI.Services
             this.unitOfWork = unitOfWork;
         }
 
-        public Task<bool> CreateLaboratory(CreateLaboratoryRequest request)
+        public int City { get; private set; }
+
+        public async Task<bool> CreateLaboratory(CreateLaboratoryRequest request)
         {
             if(request.Name.Length == 0)
             {
@@ -29,7 +31,7 @@ namespace MKDRI.Services
             {
                 throw new RequestError("Name can not be longer than 50");
             }
-            if(request.Latitude < 42.37 || request.Latitude > 40.85 || request.Longitude < 20.45 || request.Longitude > 23.02)
+            if(request.Latitude > 42.37 || request.Latitude < 40.85 || request.Longitude < 20.45 || request.Longitude > 23.02)
             {
                 throw new RequestError("Coordinate is not in Macedonia");
             }
@@ -42,8 +44,59 @@ namespace MKDRI.Services
             {
                 throw new RequestError("City name not valid");
             }
-            
-            throw new NotImplementedException();
+            List<ContactInformation> ci = new List<ContactInformation>();
+            foreach (CreateContactInformationRequest req in request.ContactInformation)
+            {
+                string res = req.Validate();
+                if(res != "")
+                {
+                    throw new RequestError(res);
+                }
+                var temp = new ContactInformation
+                {
+                    Content = req.Content,
+                    Type = Enum.Parse<ContactInformationType>(req.Type, true)
+                };
+                unitOfWork.ContactInformation.Add(temp);
+                ci.Add(temp);
+            }
+            var coordinator = await unitOfWork.Users.Where(u => u.Id == request.CoordinatorId).SingleOrDefaultAsync();
+            if(coordinator == default(User))
+            {
+                throw new RequestError("Non-existing coordinator");
+            }
+            List<User> team = new List<User>();
+            foreach (int teamMember in request.Team)
+            {
+                var user = await unitOfWork.Users.Where(u => u.Id == teamMember).SingleOrDefaultAsync();
+                if (user == default(User))
+                {
+                    throw new RequestError("Team member does not exist!");
+                }
+                team.Add(user);
+            }
+            var organisation = await unitOfWork.Organisation.Where(o => o.Id == request.OrganisationId).SingleOrDefaultAsync();
+            if(organisation == default(Organisation))
+            {
+                throw new RequestError("Non existing organisation");
+            }
+            Laboratory lab = new Laboratory
+            {
+                Name = request.Name,
+                Description = request.Description,
+                Organisation = organisation,
+                Coordinator = coordinator,
+                Longitude = request.Longitude,
+                Latitude = request.Latitude,
+                City = Enum.Parse<Cities>(request.City),
+                Visits = 0,
+                ContactInformation = ci,
+            };
+            var teamMembers = team.Select(t => new LaboratoryTeam { Laboratory = lab, User = t }).ToList();
+            lab.Team = teamMembers;
+            unitOfWork.Laboratories.Add(lab);
+            await unitOfWork.SaveAsync();
+            return true;
         }
 
         public async Task<IEnumerable<LaboratoryDto>> GetAllAsync(double startingLatitude, double endingLatitude, double startingLongitude, double endingLongitude)

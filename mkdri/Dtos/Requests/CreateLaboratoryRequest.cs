@@ -12,7 +12,6 @@ namespace MKDRI.Dtos.Requests
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public string City { get; set; }
-        public string Municipality { get; set; }
         public virtual List<CreateContactInformationRequest> ContactInformation { get; set; }
         public int CoordinatorId { get; set; }
         public virtual List<int> Team { get; set; }
