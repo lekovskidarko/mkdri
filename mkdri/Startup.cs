@@ -1,11 +1,19 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using MKDRI.Models;
 using MKDRI.Repositories.Context;
 using MKDRI.Repositories.UnitOfWork;
 using MKDRI.Services;
+using MKDRI.Services.Auth;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace MKDRI
 {
@@ -22,12 +30,43 @@ namespace MKDRI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddEntityFrameworkNpgsql().AddDbContext<MKDRIContext>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("_myAllowSpecificOrigins", builder =>
+                {
+                    builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+                });
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            services.AddAuthentication(o =>
+            {
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                          .AddJwtBearer(cfg =>
+                          {
+                              cfg.RequireHttpsMetadata = false;
+                              cfg.SaveToken = true;
+                              cfg.IncludeErrorDetails = true;
+                              cfg.TokenValidationParameters = new TokenValidationParameters()
+                              {
+                                  ValidIssuer = Configuration.GetSection("TokenIssuer").Value,
+                                  ValidAudience = Configuration.GetSection("TokenIssuer").Value,
+                                  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetSection("SecretKey").Value))
+                              };
+
+                          });
             services.AddScoped<UnitOfWork>();
             services.AddScoped<IMKDRIContext, MKDRIContext>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, userService>();
             services.AddScoped<ILaboratoryService, LaboratoryService>();
+            services.AddScoped<IOrganisationService, OrganisationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +81,9 @@ namespace MKDRI
                 app.UseHsts();
             }
 
+            app.UseAuthentication();
+
+            app.UseCors("_myAllowSpecificOrigins");
             app.UseHttpsRedirection();
             app.UseMvc();
         }

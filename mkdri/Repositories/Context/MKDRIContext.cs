@@ -4,9 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using MKDRI.Models;
+
 namespace MKDRI.Repositories.Context
 {
-    public class MKDRIContext : DbContext, IMKDRIContext
+    public class MKDRIContext : IdentityDbContext<ApplicationUser>, IMKDRIContext
     {
         public IConfiguration Configuration { get; }
 

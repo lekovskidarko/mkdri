@@ -21,6 +21,7 @@ namespace MKDRI.Repositories.Context
             builder.Property(x => x.Id).HasColumnName(@"Id").HasColumnType("integer").IsRequired().ValueGeneratedOnAdd();
             builder.Property(x => x.Type).HasColumnName(@"Type").HasColumnType("integer").IsRequired();
             builder.Property(x => x.Content).HasColumnName(@"Content").HasColumnType("character varying").IsRequired().HasMaxLength(250);
+            
         }
     }
 }

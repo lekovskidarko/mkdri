@@ -27,7 +27,7 @@ namespace MKDRI.Repositories.Context
             builder.Property(x => x.Image).HasColumnName(@"Image").HasColumnType("character varying").IsRequired();
 
             builder.HasOne(x => x.Director);
-            builder.HasMany(x => x.Laboratories).WithOne(y => y.Organisation);
+            builder.HasMany(x => x.ContactInformation).WithOne(y => y.Organisation).HasForeignKey(x => x.OrganisationId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace MKDRI.Repositories.Context
             builder.Property(x => x.Name).HasColumnName(@"Name").HasColumnType("character varying").HasMaxLength(200).IsRequired();
             builder.Property(x => x.Year).HasColumnName(@"Year").HasColumnType("integer");
             builder.Property(x => x.CatalogName).HasColumnName(@"CatalogName").HasColumnType("character varying").HasMaxLength(200);
-            builder.Property(x => x.Datasheet).HasColumnName(@"DataSheet").HasColumnType("character varying");
+            builder.Property(x => x.Datasheet).HasColumnName(@"DataSheet").HasColumnType("character varying").HasMaxLength(300);
             builder.Property(x => x.Description).HasColumnName(@"Description").HasColumnType("text");
 
             builder.HasOne(x => x.Laboratory).WithMany(y => y.Equipment);

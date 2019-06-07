@@ -28,9 +28,9 @@ namespace MKDRI.Models
     }
     public enum Cities
     {
-        Skopje_Centar = 0,
-        Skopje_Aerodrom = 1,
-        Skopje_Karpos = 2,
-        Bitola = 3
+        Skopje_Centar,
+        Skopje_Aerodrom,
+        Skopje_Karpos,
+        Bitola,
     }
 }

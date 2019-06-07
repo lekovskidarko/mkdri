@@ -63,7 +63,8 @@ namespace MKDRI.Migrations
 
                     b.Property<string>("Datasheet")
                         .HasColumnName("DataSheet")
-                        .HasColumnType("character varying");
+                        .HasColumnType("character varying")
+                        .HasMaxLength(300);
 
                     b.Property<string>("Description")
                         .HasColumnName("Description")
@@ -103,7 +104,7 @@ namespace MKDRI.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("City")
-                        .HasColumnType("integer");
+                        .HasColumnName("City");
 
                     b.Property<int?>("CoordinatorId");
 
@@ -244,17 +245,20 @@ namespace MKDRI.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnName("Email")
-                        .HasColumnType("character varying");
+                        .HasColumnType("character varying")
+                        .HasMaxLength(250);
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnName("FirstName")
-                        .HasColumnType("character varying");
+                        .HasColumnType("character varying")
+                        .HasMaxLength(50);
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnName("LastName")
-                        .HasColumnType("character varying");
+                        .HasColumnType("character varying")
+                        .HasMaxLength(50);
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -270,20 +274,23 @@ namespace MKDRI.Migrations
 
             modelBuilder.Entity("MKDRI.Models.ContactInformation", b =>
                 {
-                    b.HasOne("MKDRI.Models.Laboratory")
+                    b.HasOne("MKDRI.Models.Laboratory", "Laboratory")
                         .WithMany("ContactInformation")
-                        .HasForeignKey("LaboratoryId");
+                        .HasForeignKey("LaboratoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("MKDRI.Models.Organisation")
+                    b.HasOne("MKDRI.Models.Organisation", "Organisation")
                         .WithMany("ContactInformation")
-                        .HasForeignKey("OrganisationId");
+                        .HasForeignKey("OrganisationId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MKDRI.Models.Equipment", b =>
                 {
                     b.HasOne("MKDRI.Models.Laboratory", "Laboratory")
                         .WithMany("Equipment")
-                        .HasForeignKey("LaboratoryId");
+                        .HasForeignKey("LaboratoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MKDRI.Models.Laboratory", b =>
@@ -321,7 +328,8 @@ namespace MKDRI.Migrations
                 {
                     b.HasOne("MKDRI.Models.Laboratory", "Laboratory")
                         .WithMany("ResearchServices")
-                        .HasForeignKey("LaboratoryId");
+                        .HasForeignKey("LaboratoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MKDRI.Models.ResearchServicePerson", b =>

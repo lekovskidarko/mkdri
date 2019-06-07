@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MKDRI.Migrations
 {
     [DbContext(typeof(MKDRIContext))]
-    [Migration("20190503094351_test3")]
-    partial class test3
+    [Migration("20190511111436_test")]
+    partial class test
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -105,7 +105,7 @@ namespace MKDRI.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("City")
-                        .HasColumnType("integer");
+                        .HasColumnName("City");
 
                     b.Property<int?>("CoordinatorId");
 
@@ -246,17 +246,20 @@ namespace MKDRI.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnName("Email")
-                        .HasColumnType("character varying");
+                        .HasColumnType("character varying")
+                        .HasMaxLength(250);
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnName("FirstName")
-                        .HasColumnType("character varying");
+                        .HasColumnType("character varying")
+                        .HasMaxLength(50);
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnName("LastName")
-                        .HasColumnType("character varying");
+                        .HasColumnType("character varying")
+                        .HasMaxLength(50);
 
                     b.Property<string>("Password")
                         .IsRequired()

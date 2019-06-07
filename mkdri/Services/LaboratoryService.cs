@@ -21,7 +21,54 @@ namespace MKDRI.Services
 
         public int City { get; private set; }
 
-        public async Task<bool> CreateLaboratory(CreateLaboratoryRequest request)
+        public async Task<bool> CreateEquipmentAsync(int laboratoryId, CreateEquipmentRequest request)
+        {
+            if (request.Name.Length == 0)
+            {
+                throw new RequestError("Name can not be empty");
+            }
+            if (request.Name.Length > 200)
+            {
+                throw new RequestError("Name can not be longer than 200");
+            }
+            if (request.CatalogName != null && request.CatalogName.Length > 200)
+            {
+                throw new RequestError("Catalog name can not be longer than 200");
+            }
+            if (request.Manufacturer != null && request.Manufacturer.Length > 200)
+            {
+                throw new RequestError("Manufacturer name can not be longer than 200");
+            }
+            if (request.Datasheet != null && request.Datasheet.Length > 300)
+            {
+                throw new RequestError("Datasheet can not be longer than 300");
+            }
+            if(request.Year > DateTime.Now.Year)
+            {
+                throw new RequestError("Invalid year of produciton");
+            }
+            Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == laboratoryId).SingleOrDefaultAsync();
+            if (laboratory == default(Laboratory))
+            {
+                throw new RequestError("Non existing laboratory");
+            }
+            Equipment equipment = new Equipment
+            {
+                Laboratory = laboratory,
+                Name = request.Name,
+                Year = request.Year,
+                CatalogName = request.CatalogName,
+                Datasheet = request.Datasheet,
+                ImageLink = request.ImageLink,
+                Manufacturer = request.Manufacturer,
+                Description = request.Description,
+            };
+            laboratory.Equipment.Add(equipment);
+            await unitOfWork.SaveAsync();
+            return true;
+        }
+
+        public async Task<bool> CreateLaboratoryAsync(CreateLaboratoryRequest request)
         {
             if(request.Name.Length == 0)
             {
@@ -60,7 +107,7 @@ namespace MKDRI.Services
                 unitOfWork.ContactInformation.Add(temp);
                 ci.Add(temp);
             }
-            var coordinator = await unitOfWork.Users.Where(u => u.Id == request.CoordinatorId).SingleOrDefaultAsync();
+            User coordinator = await unitOfWork.Users.Where(u => u.Id == request.CoordinatorId).SingleOrDefaultAsync();
             if(coordinator == default(User))
             {
                 throw new RequestError("Non-existing coordinator");
@@ -75,7 +122,7 @@ namespace MKDRI.Services
                 }
                 team.Add(user);
             }
-            var organisation = await unitOfWork.Organisation.Where(o => o.Id == request.OrganisationId).SingleOrDefaultAsync();
+            Organisation organisation = await unitOfWork.Organisation.Where(o => o.Id == request.OrganisationId).SingleOrDefaultAsync();
             if(organisation == default(Organisation))
             {
                 throw new RequestError("Non existing organisation");
@@ -88,23 +135,66 @@ namespace MKDRI.Services
                 Coordinator = coordinator,
                 Longitude = request.Longitude,
                 Latitude = request.Latitude,
-                City = Enum.Parse<Cities>(request.City),
+                City = city,
                 Visits = 0,
                 ContactInformation = ci,
             };
-            var teamMembers = team.Select(t => new LaboratoryTeam { Laboratory = lab, User = t }).ToList();
+            List<LaboratoryTeam> teamMembers = team.Select(t => new LaboratoryTeam { Laboratory = lab, User = t }).ToList();
             lab.Team = teamMembers;
             unitOfWork.Laboratories.Add(lab);
             await unitOfWork.SaveAsync();
             return true;
         }
 
-        public async Task<IEnumerable<LaboratoryDto>> GetAllAsync(double startingLatitude, double endingLatitude, double startingLongitude, double endingLongitude)
+        public async Task<bool> CreateServiceAsync(int laboratoryId, CreateServiceRequest request)
         {
-            List<LaboratoryDto> x = await (from dbLab in unitOfWork.Laboratories
+            ResearchServiceType type;
+            if(!Enum.TryParse(request.Type, true, out type))
+            {
+                throw new RequestError("Service type is invalid!");
+            }
+            if (request.Name.Length == 0)
+            {
+                throw new RequestError("Name can not be empty");
+            }
+            if (request.Name.Length > 200)
+            {
+                throw new RequestError("Name can not be longer than 200");
+            }
+            Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == laboratoryId).SingleOrDefaultAsync();
+            if (laboratory == default(Laboratory))
+            {
+                throw new RequestError("Non existing laboratory");
+            }
+            List<User> team = new List<User>();
+            foreach (int teamMember in request.Persons)
+            {
+                var user = await unitOfWork.Users.Where(u => u.Id == teamMember).SingleOrDefaultAsync();
+                if (user == default(User))
+                {
+                    throw new RequestError("Team member does not exist!");
+                }
+                team.Add(user);
+            }
+            ResearchService researchService = new ResearchService
+            {
+                Laboratory = laboratory,
+                Description = request.Description,
+                Name = request.Name,
+                Type = type
+            };
+            researchService.Persons = team.Select(t => new ResearchServicePerson { User = t, ResearchService = researchService}).ToList();
+            laboratory.ResearchServices.Add(researchService);
+            await unitOfWork.SaveAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<GeoPoint<LaboratoryDto>>> GetAllAsync(double startingLatitude, double endingLatitude, double startingLongitude, double endingLongitude)
+        {
+            List<GeoPoint<LaboratoryDto>> labs = await (from dbLab in unitOfWork.Laboratories
                                                   where dbLab.Latitude >= startingLatitude && dbLab.Latitude <= endingLatitude
                                                   && dbLab.Longitude >= startingLongitude && dbLab.Longitude <= endingLongitude
-                                                  select new LaboratoryDto
+                                                  select new GeoPoint<LaboratoryDto>(dbLab.Latitude, dbLab.Longitude, new LaboratoryDto
                                                   {
                                                       Id = dbLab.Id,
                                                       Name = dbLab.Name,
@@ -113,14 +203,15 @@ namespace MKDRI.Services
                                                       EquipmentNo = dbLab.Equipment.Count,
                                                       ResearchServices = dbLab.ResearchServices.Where(X => X.Type == ResearchServiceType.ResearchService).Count(),
                                                       TechnologicalServices = dbLab.ResearchServices.Where(X => X.Type == ResearchServiceType.TechnologicalService).Count(),
-                                                  }).ToListAsync();
+                                                  })).ToListAsync();
                                      
-            return x;
+            return labs;
         }
 
-        public async Task<LaboratoryDetailsDto> GetById(int Id)
+        public async Task<LaboratoryDetailsDto> GetByIdAsync(int id)
         {
             var lab = await (from dbLab in unitOfWork.Laboratories
+                             where dbLab.Id == id
                              select new LaboratoryDetailsDto
                              {
                                  Id = dbLab.Id,
@@ -130,6 +221,12 @@ namespace MKDRI.Services
                                  Longitude = dbLab.Longitude,
                                  City = nameof(dbLab.City),
                                  Visits = dbLab.Visits,
+                                 ContactInformation = dbLab.ContactInformation.Select(contactInfo => new ContactInformationDto
+                                 {
+                                     Id = contactInfo.Id,
+                                     Content = contactInfo.Content,
+                                     Type = nameof(contactInfo.Type)
+                                 }).ToList(),
                                  Coordinator = new UserDto
                                  {
                                      Id = dbLab.Coordinator.Id,
@@ -169,6 +266,60 @@ namespace MKDRI.Services
                                  }).ToList(),
                              }).SingleOrDefaultAsync();
             return lab;
+        }
+
+        public async Task<bool> DeleteByIdAsync(int id)
+        {
+            Laboratory laboratory = await unitOfWork.Laboratories.Where(lab => lab.Id == id).SingleOrDefaultAsync();
+            if (laboratory == default(Laboratory))
+                throw new RequestError(404, "Laboratory does not exist!");
+            unitOfWork.Laboratories.Remove(laboratory);
+            await unitOfWork.SaveAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteEquipmentAsync(int labid, int equipmentid)
+        {
+            Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == labid).SingleOrDefaultAsync();
+            Equipment equipment = laboratory.Equipment.Where(eq => eq.Id == equipmentid).SingleOrDefault();
+            if (equipment == default(Equipment))
+                throw new RequestError(404, "Equipment does not exist!");
+            laboratory.Equipment.Remove(equipment);
+            await unitOfWork.SaveAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteServiceAsync(int labid, int serviceid)
+        {
+            Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == labid).SingleOrDefaultAsync();
+            ResearchService researchService = laboratory.ResearchServices.Where(rs => rs.Id == serviceid).SingleOrDefault();
+            if (researchService == default(ResearchService))
+                throw new RequestError(404, "Equipment does not exist!");
+            laboratory.ResearchServices.Remove(researchService);
+            await unitOfWork.SaveAsync();
+            return true;
+        }
+
+        public async Task<bool> CreateContactInformationAsync(int id, CreateContactInformationRequest request)
+        {
+            Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == id).SingleOrDefaultAsync();
+            if (laboratory == default(Laboratory))
+            {
+                throw new RequestError("Laboratory doesn't exist!");
+            }
+            string res = request.Validate();
+            if (res != "")
+            {
+                throw new RequestError(res);
+            }
+            var temp = new ContactInformation
+            {
+                Content = request.Content,
+                Type = Enum.Parse<ContactInformationType>(request.Type, true)
+            };
+            laboratory.ContactInformation.Add(temp);
+            await unitOfWork.SaveAsync();
+            return true;
         }
     }
 }

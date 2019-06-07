@@ -15,7 +15,7 @@ namespace MKDRI.Dtos.Requests
         public string Validate()
         {
             ContactInformationType type;
-            if (!Enum.TryParse(Type, out type))
+            if (!Enum.TryParse(Type, true, out type))
             {
                 return "Type not valid";
             }

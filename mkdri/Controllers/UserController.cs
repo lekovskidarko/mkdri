@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MKDRI.Dtos;
+using MKDRI.Dtos.Requests;
 using MKDRI.Services;
 
 namespace MKDRI.Controllers
@@ -19,36 +21,31 @@ namespace MKDRI.Controllers
             this.userService = userService;
         }
 
-        // GET api/user
-        [HttpGet]
-        public IEnumerable<UserDto> GetAll()
+        [HttpGet("self")]
+        [Authorize]
+        public UserDto GetSelf()
         {
-            return userService.GetAllUsers();    
+            return userService.GetSelf();
         }
 
-        // GET api/values/5
+        [AllowAnonymous]
         [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        public async Task<UserDto> GetByIdAsync([FromRoute]int id)
         {
-            return "value";
+            return await userService.GetByIdAsync(id);
         }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPut("")]
+        public async Task<bool> RegisterUserAsync([FromBody] CreateUserRequest request)
         {
+            return await userService.RegisterUserAsync(request);
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [AllowAnonymous]
+        [HttpPost("")]
+        public async Task<string> LoginUserAsync([FromBody] UserLoginRequest request)
         {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            return await userService.LoginUserAsync(request);
         }
     }
 }

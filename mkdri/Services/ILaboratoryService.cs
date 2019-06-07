@@ -9,8 +9,14 @@ namespace MKDRI.Services
 {
     public interface ILaboratoryService
     {
-        Task<IEnumerable<LaboratoryDto>> GetAllAsync(double startingLatitude, double endingLatitude, double startingLongitude, double endingLongitude);
-        Task<LaboratoryDetailsDto> GetById(int Id);
-        Task<bool> CreateLaboratory(CreateLaboratoryRequest request);
+        Task<IEnumerable<GeoPoint<LaboratoryDto>>> GetAllAsync(double startingLatitude, double endingLatitude, double startingLongitude, double endingLongitude);
+        Task<LaboratoryDetailsDto> GetByIdAsync(int id);
+        Task<bool> DeleteByIdAsync(int id);
+        Task<bool> CreateLaboratoryAsync(CreateLaboratoryRequest request);
+        Task<bool> CreateServiceAsync(int laboratoryId, CreateServiceRequest request);
+        Task<bool> CreateEquipmentAsync(int laboratoryId, CreateEquipmentRequest request);
+        Task<bool> DeleteEquipmentAsync(int labid, int equipmentid);
+        Task<bool> DeleteServiceAsync(int labid, int serviceid);
+        Task<bool> CreateContactInformationAsync(int id, CreateContactInformationRequest request);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MKDRI.Dtos;
+using MKDRI.Dtos.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,9 @@ namespace MKDRI.Services
 {
     public interface IUserService
     {
-        IEnumerable<UserDto> GetAllUsers();
+        Task<UserDto> GetByIdAsync(int id);
+        Task<bool> RegisterUserAsync(CreateUserRequest request);
+        Task<string> LoginUserAsync(UserLoginRequest request);
+        UserDto GetSelf();
     }
 }

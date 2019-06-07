@@ -20,5 +20,6 @@ namespace MKDRI.Dtos
         public List<UserDto> Team { get; set; }
         public List<EquipmentDto> Equipment { get; set; }
         public List<ResearchServiceDto> ResearchServices { get; set; }
+        public List<ContactInformationDto> ContactInformation { get; set; }
     }
 }
