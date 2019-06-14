@@ -7,15 +7,18 @@ using MKDRI.Dtos;
 using MKDRI.Dtos.Requests;
 using MKDRI.Models;
 using MKDRI.Repositories.UnitOfWork;
+using MKDRI.Services.Auth;
 
 namespace MKDRI.Services
 {
     public class OrganisationService : IOrganisationService
     {
         UnitOfWork unitOfWork;
+        IAuthService authService;
 
-        public OrganisationService(UnitOfWork unitOfWork)
+        public OrganisationService(UnitOfWork unitOfWork, IAuthService authService)
         {
+            this.authService = authService;
             this.unitOfWork = unitOfWork;
         }
 
@@ -75,6 +78,22 @@ namespace MKDRI.Services
                                       {
                                       }).ToListAsync();
             return organisations;
+        }
+
+        public async Task<bool> DeleteOrganisation(int organisationId)
+        {
+            Organisation organisation = await unitOfWork.Organisation.Where(o => o.Id == organisationId).SingleOrDefaultAsync();
+            if (organisation == default(Organisation))
+                throw new RequestError(404, "Organisation not found!");
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != organisation.Director.Id)
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+            unitOfWork.Organisation.Remove(organisation);
+            await unitOfWork.SaveAsync();
+            return true;
         }
     }
 }

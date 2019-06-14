@@ -14,25 +14,25 @@ namespace MKDRI.Controllers
     [ApiController]
     public class OrganisationController
     {
-        IOrganisationService organisationLaboratory;
+        IOrganisationService organisationService;
 
         public OrganisationController(IOrganisationService laboratoryService)
         {
-            this.organisationLaboratory = laboratoryService;
+            this.organisationService = laboratoryService;
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IEnumerable<OrganisationDto>> GetAll()
         {
-            return await organisationLaboratory.GetAllAsync();
+            return await organisationService.GetAllAsync();
         }
 
         [Authorize]
         [HttpPut]
         public async Task<bool> CreateOrganisation([FromBody] CreateOrganisationRequest request)
         {
-            return await organisationLaboratory.CreateOrganisation(request);
+            return await organisationService.CreateOrganisation(request);
         }
 
     }

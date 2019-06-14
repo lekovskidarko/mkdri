@@ -9,7 +9,7 @@ using MKDRI.Models;
 
 namespace MKDRI.Repositories.Context
 {
-    public class MKDRIContext : IdentityDbContext<ApplicationUser>, IMKDRIContext
+    public class MKDRIContext : DbContext, IMKDRIContext
     {
         public IConfiguration Configuration { get; }
 
@@ -65,6 +65,8 @@ namespace MKDRI.Repositories.Context
             modelBuilder.ApplyConfiguration(new LaboratoryTeamConfiguration(schema));
             modelBuilder.ApplyConfiguration(new EquipmentConfiguration(schema));
             modelBuilder.ApplyConfiguration(new OrganisationConfiguration(schema));
+            modelBuilder.ApplyConfiguration(new LaboratoryPermissionConfiguration(schema));
+            modelBuilder.ApplyConfiguration(new OrganisationPermissionConfiguration(schema));
         }
     }
 }

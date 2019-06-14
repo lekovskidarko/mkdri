@@ -7,15 +7,18 @@ using MKDRI.Dtos;
 using MKDRI.Dtos.Requests;
 using MKDRI.Models;
 using MKDRI.Repositories.UnitOfWork;
+using MKDRI.Services.Auth;
 
 namespace MKDRI.Services
 {
     public class LaboratoryService : ILaboratoryService
     {
         UnitOfWork unitOfWork;
-
-        public LaboratoryService(UnitOfWork unitOfWork)
+        IAuthService authService;
+        
+        public LaboratoryService(UnitOfWork unitOfWork, IAuthService authService)
         {
+            this.authService = authService;
             this.unitOfWork = unitOfWork;
         }
 
@@ -50,8 +53,17 @@ namespace MKDRI.Services
             Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == laboratoryId).SingleOrDefaultAsync();
             if (laboratory == default(Laboratory))
             {
-                throw new RequestError("Non existing laboratory");
+                throw new RequestError(404, "Non existing laboratory");
             }
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if(myId != laboratory.Coordinator.Id && 
+                laboratory.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(LaboratoryPermission))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
             Equipment equipment = new Equipment
             {
                 Laboratory = laboratory,
@@ -107,6 +119,21 @@ namespace MKDRI.Services
                 unitOfWork.ContactInformation.Add(temp);
                 ci.Add(temp);
             }
+            
+            Organisation organisation = await unitOfWork.Organisation.Where(o => o.Id == request.OrganisationId).SingleOrDefaultAsync();
+            if(organisation == default(Organisation))
+            {
+                throw new RequestError("Non existing organisation");
+            }
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != organisation.Director.Id &&
+                organisation.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(OrganisationPermission))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
             User coordinator = await unitOfWork.Users.Where(u => u.Id == request.CoordinatorId).SingleOrDefaultAsync();
             if(coordinator == default(User))
             {
@@ -121,11 +148,6 @@ namespace MKDRI.Services
                     throw new RequestError("Team member does not exist!");
                 }
                 team.Add(user);
-            }
-            Organisation organisation = await unitOfWork.Organisation.Where(o => o.Id == request.OrganisationId).SingleOrDefaultAsync();
-            if(organisation == default(Organisation))
-            {
-                throw new RequestError("Non existing organisation");
             }
             Laboratory lab = new Laboratory
             {
@@ -166,6 +188,15 @@ namespace MKDRI.Services
             {
                 throw new RequestError("Non existing laboratory");
             }
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != laboratory.Coordinator.Id &&
+                laboratory.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(LaboratoryPermission))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
             List<User> team = new List<User>();
             foreach (int teamMember in request.Persons)
             {
@@ -273,6 +304,16 @@ namespace MKDRI.Services
             Laboratory laboratory = await unitOfWork.Laboratories.Where(lab => lab.Id == id).SingleOrDefaultAsync();
             if (laboratory == default(Laboratory))
                 throw new RequestError(404, "Laboratory does not exist!");
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != laboratory.Organisation.Director.Id &&
+                laboratory.Organisation.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(OrganisationPermission) &&
+                myId != laboratory.Coordinator.Id)
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
             unitOfWork.Laboratories.Remove(laboratory);
             await unitOfWork.SaveAsync();
             return true;
@@ -281,6 +322,15 @@ namespace MKDRI.Services
         public async Task<bool> DeleteEquipmentAsync(int labid, int equipmentid)
         {
             Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == labid).SingleOrDefaultAsync();
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != laboratory.Coordinator.Id &&
+                laboratory.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(LaboratoryPermission))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
             Equipment equipment = laboratory.Equipment.Where(eq => eq.Id == equipmentid).SingleOrDefault();
             if (equipment == default(Equipment))
                 throw new RequestError(404, "Equipment does not exist!");
@@ -292,6 +342,19 @@ namespace MKDRI.Services
         public async Task<bool> DeleteServiceAsync(int labid, int serviceid)
         {
             Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == labid).SingleOrDefaultAsync();
+            if (laboratory == default(Laboratory))
+            {
+                throw new RequestError("Laboratory doesn't exist!");
+            }
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != laboratory.Coordinator.Id &&
+                laboratory.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(LaboratoryPermission))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
             ResearchService researchService = laboratory.ResearchServices.Where(rs => rs.Id == serviceid).SingleOrDefault();
             if (researchService == default(ResearchService))
                 throw new RequestError(404, "Equipment does not exist!");
@@ -307,6 +370,15 @@ namespace MKDRI.Services
             {
                 throw new RequestError("Laboratory doesn't exist!");
             }
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != laboratory.Coordinator.Id &&
+                laboratory.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(LaboratoryPermission))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
             string res = request.Validate();
             if (res != "")
             {

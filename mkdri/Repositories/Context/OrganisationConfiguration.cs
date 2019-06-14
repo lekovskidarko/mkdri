@@ -28,6 +28,7 @@ namespace MKDRI.Repositories.Context
 
             builder.HasOne(x => x.Director);
             builder.HasMany(x => x.ContactInformation).WithOne(y => y.Organisation).HasForeignKey(x => x.OrganisationId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(x => x.Permissions).WithOne(y => y.Organisation).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

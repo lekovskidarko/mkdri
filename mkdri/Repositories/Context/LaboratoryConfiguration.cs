@@ -31,6 +31,7 @@ namespace MKDRI.Repositories.Context
             builder.HasMany(x => x.ContactInformation).WithOne(y => y.Laboratory).HasForeignKey(x => x.LaboratoryId).OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(x => x.Team).WithOne(y => y.Laboratory).OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(x => x.ResearchServices).WithOne(y => y.Laboratory).OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(x => x.Permissions).WithOne(y => y.Laboratory).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

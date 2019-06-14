@@ -14,5 +14,6 @@ namespace MKDRI.Models
         public virtual User Director { get; set; }
         public virtual List<ContactInformation> ContactInformation { get; set; }
         public virtual List<Laboratory> Laboratories { get; set; }
+        public virtual List<OrganisationPermission> Permissions { get; set;  }
     }
 }

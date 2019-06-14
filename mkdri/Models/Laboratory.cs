@@ -21,5 +21,6 @@ namespace MKDRI.Models
         public virtual List<Equipment> Equipment { get; set; }
         public virtual List<ResearchService> ResearchServices { get; set; }
         public virtual Organisation Organisation { get; set; }
+        public virtual List<LaboratoryPermission> Permissions { get; set; }
     }
 }
