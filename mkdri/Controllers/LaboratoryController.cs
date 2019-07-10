@@ -82,5 +82,19 @@ namespace MKDRI.Controllers
         {
             return await laboratoryService.CreateContactInformationAsync(id, request);
         }
+
+        [Authorize]
+        [HttpPut("{labid}/permissions/{userid}")]
+        public async Task<bool> GrantLaboratoryUserPermissionAsync([FromRoute]int labid, [FromRoute] int userid)
+        {
+            return await laboratoryService.GiveUserPermission(labid, userid);
+        }
+
+        [Authorize]
+        [HttpDelete("{labid}/permissions/{userid}")]
+        public async Task<bool> RevokeLaboratoryUserPermissionAsync([FromRoute]int labid, [FromRoute] int userid)
+        {
+            return await laboratoryService.RemoveUserPermission(labid, userid);
+        }
     }
 }

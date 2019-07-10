@@ -95,5 +95,64 @@ namespace MKDRI.Services
             await unitOfWork.SaveAsync();
             return true;
         }
+
+
+        public async Task<bool> GiveUserPermission(int organisationId, int userId)
+        {
+            Organisation organisation = await unitOfWork.Organisation.Where(o => o.Id == organisationId).SingleOrDefaultAsync();
+            if (organisation == default(Organisation))
+            {
+                throw new RequestError("Laboratory doesn't exist!");
+            }
+            User user = await unitOfWork.Users.Where(u => u.Id == userId).SingleOrDefaultAsync();
+            if (user == default(User))
+            {
+                throw new RequestError("User doesn't exist!");
+            }
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != organisation.Director.Id &&
+                !organisation.Permissions.Any(p => p.UserId == myId))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
+
+            if (organisation.Permissions.Any(p => p.UserId == userId))
+                throw new RequestError("User already has permission for that laboratory!");
+
+            organisation.Permissions.Add(new OrganisationPermission
+            {
+                OrganisationId = organisationId,
+                UserId = userId
+            });
+
+            return true;
+        }
+
+        public async Task<bool> RemoveUserPermission(int organisationId, int userId)
+        {
+            Organisation organisation = await unitOfWork.Organisation.Where(o => o.Id == organisationId).SingleOrDefaultAsync();
+            if (organisation == default(Organisation))
+            {
+                throw new RequestError("Laboratory doesn't exist!");
+            }
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != organisation.Director.Id &&
+                !organisation.Permissions.Any(p => p.UserId == myId))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
+            OrganisationPermission organisationPermission = organisation.Permissions.Where(p => p.UserId == userId).SingleOrDefault();
+            if (organisationPermission == default(OrganisationPermission))
+                throw new RequestError("Permission doesn't exist!");
+            organisation.Permissions.Remove(organisationPermission);
+            await unitOfWork.SaveAsync();
+            return true;
+        }
     }
 }

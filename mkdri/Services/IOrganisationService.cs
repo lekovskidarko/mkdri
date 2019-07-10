@@ -9,5 +9,7 @@ namespace MKDRI.Services
     {
         Task<IEnumerable<OrganisationDto>> GetAllAsync();
         Task<bool> CreateOrganisation(CreateOrganisationRequest request);
+        Task<bool> GiveUserPermission(int organisationId, int userId);
+        Task<bool> RemoveUserPermission(int organisationId, int userId);
     }
 }

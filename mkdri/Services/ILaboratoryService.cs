@@ -17,6 +17,8 @@ namespace MKDRI.Services
         Task<bool> CreateEquipmentAsync(int laboratoryId, CreateEquipmentRequest request);
         Task<bool> DeleteEquipmentAsync(int labid, int equipmentid);
         Task<bool> DeleteServiceAsync(int labid, int serviceid);
+        Task<bool> GiveUserPermission(int labid, int userId);
+        Task<bool> RemoveUserPermission(int labid, int userId);
         Task<bool> CreateContactInformationAsync(int id, CreateContactInformationRequest request);
     }
 }

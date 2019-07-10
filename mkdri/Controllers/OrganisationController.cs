@@ -35,5 +35,19 @@ namespace MKDRI.Controllers
             return await organisationService.CreateOrganisation(request);
         }
 
+        [Authorize]
+        [HttpPut("{organisationid}/permissions/{userid}")]
+        public async Task<bool> GrantLaboratoryUserPermissionAsync([FromRoute]int organisationid, [FromRoute] int userid)
+        {
+            return await organisationService.GiveUserPermission(organisationid, userid);
+        }
+
+        [Authorize]
+        [HttpDelete("{labid}/permissions/{userid}")]
+        public async Task<bool> RevokeLaboratoryUserPermissionAsync([FromRoute]int organisationid, [FromRoute] int userid)
+        {
+            return await organisationService.RemoveUserPermission(organisationid, userid);
+        }
     }
+
 }

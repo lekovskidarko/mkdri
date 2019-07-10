@@ -308,7 +308,7 @@ namespace MKDRI.Services
             // AUTHORISATION CHECK
             int myId = authService.CurrentUser.Id;
             if (myId != laboratory.Organisation.Director.Id &&
-                laboratory.Organisation.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(OrganisationPermission) &&
+                !laboratory.Organisation.Permissions.Any(p => p.UserId == myId) &&
                 myId != laboratory.Coordinator.Id)
             {
                 throw new RequestError(403, "Permission denied!");
@@ -325,8 +325,7 @@ namespace MKDRI.Services
 
             // AUTHORISATION CHECK
             int myId = authService.CurrentUser.Id;
-            if (myId != laboratory.Coordinator.Id &&
-                laboratory.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(LaboratoryPermission))
+            if (myId != laboratory.Coordinator.Id && !laboratory.Permissions.Any(p => p.UserId == myId))
             {
                 throw new RequestError(403, "Permission denied!");
             }
@@ -349,9 +348,8 @@ namespace MKDRI.Services
 
             // AUTHORISATION CHECK
             int myId = authService.CurrentUser.Id;
-            if (myId != laboratory.Coordinator.Id &&
-                laboratory.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(LaboratoryPermission))
-            {
+            if (myId != laboratory.Coordinator.Id && !laboratory.Permissions.Any(p => p.UserId == myId))
+                {
                 throw new RequestError(403, "Permission denied!");
             }
 
@@ -359,6 +357,62 @@ namespace MKDRI.Services
             if (researchService == default(ResearchService))
                 throw new RequestError(404, "Equipment does not exist!");
             laboratory.ResearchServices.Remove(researchService);
+            await unitOfWork.SaveAsync();
+            return true;
+        }
+
+        public async Task<bool> GiveUserPermission(int labid, int userId)
+        {
+            Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == labid).SingleOrDefaultAsync();
+            if (laboratory == default(Laboratory))
+            {
+                throw new RequestError("Laboratory doesn't exist!");
+            }
+            User user = await unitOfWork.Users.Where(u => u.Id == userId).SingleOrDefaultAsync();
+            if (user == default(User))
+            {
+                throw new RequestError("User doesn't exist!");
+            }
+
+            if (laboratory.Permissions.Any(p => p.UserId == userId))
+                throw new RequestError("User already has permission for that laboratory!");
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != laboratory.Coordinator.Id && !laboratory.Permissions.Any(p => p.UserId == myId))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
+            laboratory.Permissions.Add(new LaboratoryPermission
+            {
+                LaboratoryId = labid,
+                UserId = userId
+            });
+
+            return true;
+        }
+
+        public async Task<bool> RemoveUserPermission(int labid, int userId)
+        {
+            Laboratory laboratory = await unitOfWork.Laboratories.Where(l => l.Id == labid).SingleOrDefaultAsync();
+            if (laboratory == default(Laboratory))
+            {
+                throw new RequestError("Laboratory doesn't exist!");
+            }
+
+            // AUTHORISATION CHECK
+            int myId = authService.CurrentUser.Id;
+            if (myId != laboratory.Coordinator.Id &&
+                laboratory.Permissions.Where(p => p.UserId == myId).SingleOrDefault() == default(LaboratoryPermission))
+            {
+                throw new RequestError(403, "Permission denied!");
+            }
+
+            LaboratoryPermission laboratoryPermission = laboratory.Permissions.Where(p => p.UserId == userId).SingleOrDefault();
+            if(laboratoryPermission == default(LaboratoryPermission))
+                throw new RequestError("Permission doesn't exist!");
+            laboratory.Permissions.Remove(laboratoryPermission);
             await unitOfWork.SaveAsync();
             return true;
         }
