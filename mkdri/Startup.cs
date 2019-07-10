@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MKDRI.Models;
 using MKDRI.Repositories.Context;
 using MKDRI.Repositories.UnitOfWork;
@@ -38,6 +39,11 @@ namespace MKDRI
                 });
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "MKDRI API", Version = "v0.1" });
+            });
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
@@ -80,6 +86,12 @@ namespace MKDRI
             {
                 app.UseHsts();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MKDRI API V0.1");
+            });
 
             app.UseAuthentication();
 
